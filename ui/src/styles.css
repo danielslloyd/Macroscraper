@@ -1,0 +1,110 @@
+:root {
+  --bg: #0f1115;
+  --panel: #161a22;
+  --panel-2: #1d222c;
+  --border: #262b36;
+  --text: #e6e8ee;
+  --muted: #8b94a7;
+  --accent: #6da3ff;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; background: var(--bg); color: var(--text); }
+
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr 360px;
+  grid-template-rows: 56px 1fr;
+  height: 100vh;
+}
+.app header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+  background: var(--panel);
+}
+.app header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+.health { font-size: 12px; padding: 4px 8px; border-radius: 999px; background: var(--panel-2); }
+.health.ok { color: var(--good); }
+.health.bad { color: var(--bad); }
+
+.sidebar { border-right: 1px solid var(--border); overflow-y: auto; padding: 12px; background: var(--panel); }
+.sidebar h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 12px 0 6px; }
+.sidebar button {
+  display: block; width: 100%; text-align: left;
+  background: transparent; color: var(--text);
+  border: 1px solid transparent; padding: 6px 8px; border-radius: 6px;
+  cursor: pointer; font-size: 13px;
+}
+.sidebar button:hover { background: var(--panel-2); }
+.sidebar button.active { background: var(--panel-2); border-color: var(--accent); }
+.sidebar .crawl-btn {
+  margin-top: 6px; font-size: 11px; padding: 4px 8px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--panel-2); color: var(--muted);
+}
+
+main { overflow-y: auto; padding: 16px; }
+aside.right { border-left: 1px solid var(--border); overflow-y: auto; padding: 16px; background: var(--panel); }
+
+.tree ul { list-style: none; padding-left: 16px; margin: 0; }
+.tree li { padding: 2px 0; font-size: 13px; }
+.tree .toggle { cursor: pointer; user-select: none; color: var(--muted); width: 14px; display: inline-block; }
+.tree .leaf { padding-left: 16px; cursor: pointer; }
+.tree .leaf:hover { background: var(--panel-2); }
+.tree .leaf.selected { background: var(--panel-2); border-left: 2px solid var(--accent); }
+
+.badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 999px; margin-left: 6px; }
+.badge.uncrawled { background: #2a2f3a; color: var(--muted); }
+.badge.scraped { background: #1f3a5b; color: var(--accent); }
+.badge.cleaning { background: #4a3a1c; color: var(--warn); }
+.badge.cleaned { background: #1f4a2e; color: var(--good); }
+.badge.flagged { background: #4a1f1f; color: var(--bad); }
+
+.controls { display: flex; gap: 8px; margin-bottom: 12px; }
+.controls button {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px;
+  cursor: pointer; font-size: 13px;
+}
+.controls button:hover:not(:disabled) { border-color: var(--accent); }
+.controls button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.card .value { font-size: 24px; font-weight: 600; margin-top: 4px; }
+
+.activity { font-size: 12px; }
+.activity .row { display: grid; grid-template-columns: 80px 1fr 80px; gap: 8px; padding: 4px 0; border-top: 1px solid var(--border); }
+.activity .row:first-child { border-top: 0; }
+.activity .row.failed { color: var(--bad); }
+.activity .row.completed { color: var(--good); }
+.activity .row.running { color: var(--warn); }
+
+.product-panel h2 { font-size: 16px; margin: 0 0 4px; }
+.product-panel .brand { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.product-panel .field { display: grid; grid-template-columns: 100px 1fr; gap: 8px; font-size: 13px; padding: 4px 0; }
+.product-panel .field .k { color: var(--muted); }
+.product-panel a { color: var(--accent); text-decoration: none; }
+.product-panel a:hover { text-decoration: underline; }
+.product-panel .nutrition { background: var(--panel-2); border-radius: 6px; padding: 8px; margin-top: 8px; }
+.product-panel section { margin-top: 16px; }
+.product-panel section h3 { font-size: 12px; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.related, .similar { font-size: 13px; }
+.related li, .similar li { margin: 2px 0; }
+
+.cleaning-runs pre {
+  background: var(--panel-2); padding: 8px; border-radius: 6px;
+  max-height: 200px; overflow: auto; font-size: 11px;
+}
+
+.empty { color: var(--muted); padding: 32px; text-align: center; font-size: 13px; }
