@@ -1,0 +1,6 @@
+{
+  "models": [
+    { "name": "qwen2.5-vl:7b", "vision": true },
+    { "name": "llama3.1:8b", "vision": false }
+  ]
+}
