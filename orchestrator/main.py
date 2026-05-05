@@ -63,15 +63,17 @@ def main() -> None:
     import uvicorn
 
     port = 8000
-    # Kill any existing process using port 8000 (only this specific port)
-    for proc in psutil.process_iter(['pid', 'name']):
+    # Kill only existing Food Scraper instances using port 8000
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
-            if proc.connections():
-                for conn in proc.connections():
-                    if conn.laddr.port == port:
-                        print(f"Killing existing process {proc.pid} ({proc.name()}) using port {port}")
-                        proc.kill()
-                        proc.wait()
+            cmdline = ' '.join(proc.cmdline()) if proc.cmdline() else ''
+            if 'orchestrator.main' in cmdline or 'orchestrator/main' in cmdline:
+                if proc.connections():
+                    for conn in proc.connections():
+                        if conn.laddr.port == port:
+                            print(f"Killing existing Food Scraper process {proc.pid} ({proc.name()}) using port {port}")
+                            proc.kill()
+                            proc.wait()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
             pass
 
