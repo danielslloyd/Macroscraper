@@ -59,7 +59,24 @@ app = create_app()
 
 
 def main() -> None:
+    import psutil
     import uvicorn
+
+    port = 8000
+    # Kill only existing Food Scraper instances using port 8000
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            cmdline = ' '.join(proc.cmdline()) if proc.cmdline() else ''
+            if 'orchestrator.main' in cmdline or 'orchestrator/main' in cmdline:
+                if proc.connections():
+                    for conn in proc.connections():
+                        if conn.laddr.port == port:
+                            print(f"Killing existing Food Scraper process {proc.pid} ({proc.name()}) using port {port}")
+                            proc.kill()
+                            proc.wait()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+            pass
+
     uvicorn.run("orchestrator.main:app", host="127.0.0.1", port=8000, reload=False)
 
 
