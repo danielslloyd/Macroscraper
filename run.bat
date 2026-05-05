@@ -16,8 +16,8 @@ if not exist "venv" (
 call venv\Scripts\activate.bat
 
 echo Installing Python dependencies...
-pip install -q -U pip setuptools wheel
-pip install -q -r requirements.txt
+python -m pip install -q -U pip setuptools wheel
+python -m pip install -q -r requirements.txt
 
 echo Installing Playwright browsers (chromium)...
 playwright install chromium
