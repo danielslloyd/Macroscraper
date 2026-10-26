@@ -1,6 +1,22 @@
 import React from "react";
 import { api } from "../api.js";
 
+// Labels for the extraction tiers recorded in `nutrition_sources[]`.
+const SOURCE_LABELS = {
+  page_html: "retailer's own page data",
+  barcode_db: "barcode lookup",
+  name_db: "name match in Open Food Facts",
+  ocr: "OCR of the panel photo",
+  local_vision: "local vision model",
+  claude: "Claude",
+};
+
+function confidenceClass(value) {
+  if (value >= 0.75) return "cleaned";
+  if (value > 0) return "scraped";
+  return "flagged";
+}
+
 export default function ProductPanel({ product, onPickProduct }) {
   if (!product) {
     return <div className="empty">Select a product to view details.</div>;
@@ -27,9 +43,40 @@ export default function ProductPanel({ product, onPickProduct }) {
         <div className="field"><span className="k">Price</span><span>${product.price.package_price} {product.price.package_size}</span></div>
       )}
 
+      {(product.sold_by || product.gtin || product.upc) && (
+        <>
+          {product.sold_by && (
+            <div className="field">
+              <span className="k">Sold by</span>
+              <span>
+                {product.sold_by}
+                {product.first_party === false && " (third party)"}
+              </span>
+            </div>
+          )}
+          {(product.gtin || product.upc) && (
+            <div className="field"><span className="k">Barcode</span><span>{product.gtin || product.upc}</span></div>
+          )}
+        </>
+      )}
+
+      {product.flag_reason && (
+        <div className="field">
+          <span className="k">Flagged</span>
+          <span>{product.flag_reason}{product.flag_detail ? ` — ${product.flag_detail}` : ""}</span>
+        </div>
+      )}
+
       {product.nutrition && Object.keys(product.nutrition).length > 0 && (
         <section>
-          <h3>Nutrition (raw scrape)</h3>
+          <h3>
+            Nutrition{" "}
+            {product.nutrition_confidence != null && (
+              <span className={`badge ${confidenceClass(product.nutrition_confidence)}`}>
+                {Math.round(product.nutrition_confidence * 100)}% confidence
+              </span>
+            )}
+          </h3>
           <div className="nutrition">
             {Object.entries(product.nutrition).map(([k, v]) => (
               <div key={k} className="field"><span className="k">{k}</span><span>{String(v)}</span></div>
@@ -38,16 +85,60 @@ export default function ProductPanel({ product, onPickProduct }) {
         </section>
       )}
 
+      {product.nutrition_sources?.length > 0 && (
+        <section>
+          <h3>Where the numbers came from</h3>
+          <ul className="similar">
+            {product.nutrition_sources.map((src, i) => (
+              <li key={i} style={{ color: src.accepted ? "var(--text)" : "var(--muted)" }}>
+                <span className="k">tier {src.tier}</span> {SOURCE_LABELS[src.source] || src.source}
+                {src.accepted
+                  ? ` — ${Object.keys(src.fields || {}).length} fields used`
+                  : ` — ${src.skipped || src.rejected_reason || src.error || "nothing found"}`}
+                {src.database && src.matched_name && (
+                  <div style={{ fontSize: 10 }}>
+                    matched “{src.matched_name}”
+                    {src.match_score != null && ` (score ${src.match_score})`}
+                  </div>
+                )}
+                {src.image && <div style={{ fontSize: 10 }}>read from {src.image}</div>}
+              </li>
+            ))}
+          </ul>
+          {product.nutrition_conflicts?.length > 0 && (
+            <div style={{ fontSize: 11, color: "var(--muted)" }}>
+              Disagreements kept out of the record:{" "}
+              {product.nutrition_conflicts
+                .map((c) => `${c.field} ${c.kept} (kept) vs ${c.rejected} from ${c.from}`)
+                .join("; ")}
+            </div>
+          )}
+        </section>
+      )}
+
       {product.images?.length > 0 && (
         <section>
           <h3>Images</h3>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {product.images.map((img, i) => (
-              <a key={i} href={img.public_url} target="_blank" rel="noreferrer">
-                <img src={img.public_url} alt="" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 4 }} />
+              <a
+                key={i}
+                href={img.public_url}
+                target="_blank"
+                rel="noreferrer"
+                title={`${i}: ${img.role || "other"}`}
+              >
+                <img src={img.public_url} alt={img.role || ""} style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 4 }} />
               </a>
             ))}
           </div>
+          {product.nutrition_label_image?.local_path && (
+            <div style={{ fontSize: 11, color: "var(--muted)" }}>
+              Nutrition panel: image {product.nutrition_label_image.image_index ?? "—"}
+              {product.nutrition_label_image.panel_likeness != null &&
+                ` (panel match ${product.nutrition_label_image.panel_likeness})`}
+            </div>
+          )}
         </section>
       )}
 

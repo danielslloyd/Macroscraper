@@ -1,0 +1,92 @@
+{
+  "fetch": {
+    "browser_profile": "data/browser-profile",
+    "channel": "chrome",
+    "headless": true,
+    "nav_timeout_ms": 60000,
+    "settle_ms": 3000,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "locale": "en-US",
+    "timezone": "America/New_York"
+  },
+  "retailers": {
+    "kroger": {
+      "enabled": true,
+      "mode": "api",
+      "min_delay": 1.0,
+      "max_delay": 2.0,
+      "first_party_only": false,
+      "location_id": null,
+      "note": "Uses the official Kroger Developer API. Set KROGER_CLIENT_ID and KROGER_CLIENT_SECRET."
+    },
+    "amazon": {
+      "enabled": true,
+      "mode": "browser",
+      "min_delay": 3.0,
+      "max_delay": 6.0,
+      "first_party_only": true,
+      "note": "first_party_only keeps items sold by Amazon itself and drops marketplace sellers."
+    },
+    "walmart": {
+      "enabled": true,
+      "mode": "browser",
+      "min_delay": 2.5,
+      "max_delay": 5.0,
+      "first_party_only": true,
+      "note": "Bot-walled. Run 'python -m scraper.unblock walmart' once to pass the check interactively."
+    },
+    "costco": {
+      "enabled": true,
+      "mode": "browser",
+      "min_delay": 2.0,
+      "max_delay": 4.0,
+      "first_party_only": true
+    },
+    "publix": {
+      "enabled": true,
+      "mode": "browser",
+      "min_delay": 2.0,
+      "max_delay": 4.0,
+      "first_party_only": true,
+      "store_id": null
+    },
+    "whole_foods": {
+      "enabled": true,
+      "mode": "fixture",
+      "min_delay": 1.0,
+      "max_delay": 3.0
+    },
+    "trader_joes": {
+      "enabled": true,
+      "mode": "fixture",
+      "min_delay": 1.0,
+      "max_delay": 3.0
+    }
+  },
+  "nutrition": {
+    "accept_confidence": 0.75,
+    "tiers": [
+      "page_html",
+      "barcode_db",
+      "name_db",
+      "ocr",
+      "local_vision",
+      "claude"
+    ],
+    "ocr_engine": "rapidocr",
+    "max_images_ocr": 6,
+    "panel_likeness_threshold": 0.3,
+    "barcode_sources": [
+      "open_food_facts",
+      "usda_fdc"
+    ]
+  },
+  "llm": {
+    "ollama_host": "http://localhost:11434",
+    "vision_model": "qwen2.5-vl:7b",
+    "claude_model": "claude-opus-5-5",
+    "claude_effort": "low",
+    "claude_enabled": false,
+    "note": "claude_enabled requires ANTHROPIC_API_KEY. Both LLM tiers are last resorts; the tiers above them handle most products. For high-volume runs, claude-sonnet-5-5 costs less per panel."
+  }
+}

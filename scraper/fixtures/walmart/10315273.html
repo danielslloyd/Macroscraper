@@ -1,0 +1,97 @@
+<!doctype html>
+<!--
+  SYNTHETIC FIXTURE. Walmart serves an automated first request a bot check
+  instead of the product, so no live page could be captured for this project.
+  (The challenge page's own wording is deliberately not quoted here: it is one
+  of the markers scraper/fetch/browser.py looks for.)
+  The __NEXT_DATA__ payload below follows the shape Walmart's product page
+  publishes - the item record keyed by usItemId, priceInfo, imageInfo.allImages,
+  sellerName/sellerId, and a nutritionFacts block of {name, value, uom} entries.
+  Field names and nesting are what the adapter reads; the values are made up.
+
+  Replace this with a real capture after running:
+      python -m scraper.unblock walmart
+  then saving the page HTML here under the item id.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Great Value Creamy Peanut Butter, 40 oz - Walmart.com</title>
+</head>
+<body>
+  <h1 itemprop="name">Great Value Creamy Peanut Butter, 40 oz</h1>
+  <nav aria-label="breadcrumb" class="breadcrumb">
+    <a href="/cp/food/976759">Food</a>
+    <a href="/cp/pantry/976794">Pantry</a>
+    <a href="/cp/nut-butters/1001320">Nut Butters</a>
+  </nav>
+
+  <div data-testid="carousel-similar-items">
+    <a href="/ip/Great-Value-Crunchy-Peanut-Butter-40-oz/10315274">Great Value Crunchy Peanut Butter, 40 oz</a>
+    <a href="/ip/Jif-Creamy-Peanut-Butter-40-oz/10448258">Jif Creamy Peanut Butter, 40 oz</a>
+  </div>
+
+  <script id="__NEXT_DATA__" type="application/json">
+{
+  "props": {
+    "pageProps": {
+      "initialData": {
+        "data": {
+          "product": {
+            "usItemId": "10315273",
+            "offerId": "A0B1C2D3E4F5",
+            "name": "Great Value Creamy Peanut Butter, 40 oz",
+            "brand": "Great Value",
+            "type": "Peanut Butter",
+            "upc": "078742370507",
+            "gtin14": "00078742370507",
+            "shortDescription": "<p>Great Value Creamy Peanut Butter is made with roasted peanuts for a smooth, rich spread.</p>",
+            "categoryPath": "Food/Pantry/Nut Butters & Jelly/Peanut Butter",
+            "sellerName": "Walmart.com",
+            "sellerId": "F55CDC31AB754BB68FE0B39041159D63",
+            "isSoldByWalmart": true,
+            "fulfillerName": "Walmart.com",
+            "size": "40 oz",
+            "priceInfo": {
+              "currentPrice": { "price": 4.68, "priceString": "$4.68", "currencyUnit": "USD" },
+              "wasPrice": null,
+              "unitPrice": { "price": 0.117, "priceString": "11.7 ¢/oz", "unit": "oz" }
+            },
+            "imageInfo": {
+              "thumbnailUrl": "https://i5.walmartimages.com/seo/Great-Value-Creamy-Peanut-Butter-40-oz_abc_100.jpeg",
+              "allImages": [
+                { "id": "img-front", "url": "https://i5.walmartimages.com/seo/Great-Value-Creamy-Peanut-Butter-40-oz_front.jpeg", "zoomable": true },
+                { "id": "img-back", "url": "https://i5.walmartimages.com/seo/Great-Value-Creamy-Peanut-Butter-40-oz_back.jpeg", "zoomable": true },
+                { "id": "img-label", "url": "https://i5.walmartimages.com/seo/Great-Value-Creamy-Peanut-Butter-40-oz_nutrition.jpeg", "zoomable": true }
+              ]
+            },
+            "nutritionFacts": {
+              "servingSize": "2 tbsp (32g)",
+              "servingsPerContainer": "35",
+              "calorieContent": "190",
+              "nutrientValues": [
+                { "name": "Total Fat", "value": "16", "uom": "g", "percentDailyValue": "21" },
+                { "name": "Saturated Fat", "value": "3", "uom": "g", "percentDailyValue": "15" },
+                { "name": "Trans Fat", "value": "0", "uom": "g" },
+                { "name": "Cholesterol", "value": "0", "uom": "mg", "percentDailyValue": "0" },
+                { "name": "Sodium", "value": "140", "uom": "mg", "percentDailyValue": "6" },
+                { "name": "Total Carbohydrate", "value": "7", "uom": "g", "percentDailyValue": "3" },
+                { "name": "Dietary Fiber", "value": "2", "uom": "g", "percentDailyValue": "7" },
+                { "name": "Total Sugars", "value": "3", "uom": "g" },
+                { "name": "Added Sugars", "value": "2", "uom": "g", "percentDailyValue": "4" },
+                { "name": "Protein", "value": "7", "uom": "g" },
+                { "name": "Calcium", "value": "20", "uom": "mg", "percentDailyValue": "2" },
+                { "name": "Iron", "value": "0.7", "uom": "mg", "percentDailyValue": "4" },
+                { "name": "Potassium", "value": "200", "uom": "mg", "percentDailyValue": "4" }
+              ]
+            },
+            "ingredients": "ROASTED PEANUTS, SUGAR, CONTAINS 2% OR LESS OF: MOLASSES, FULLY HYDROGENATED VEGETABLE OILS (RAPESEED AND COTTONSEED), MONO AND DIGLYCERIDES, SALT."
+          }
+        }
+      }
+    }
+  }
+}
+  </script>
+</body>
+</html>

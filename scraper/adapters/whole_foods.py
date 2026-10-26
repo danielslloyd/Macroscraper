@@ -1,9 +1,9 @@
 """Whole Foods Market adapter.
 
-Reference implementation. Fixture-driven by default — drop a saved HTML page
-into `scraper/fixtures/whole_foods/` and the crawler/scraper will read it
-instead of going live. To enable live crawling, set `fixture_driven = False`
-on the instance.
+Reference implementation. Configured as `"mode": "fixture"` in
+`scraper_config.json`, so it reads saved pages from
+`scraper/fixtures/whole_foods/` and never goes to the network; switch that mode
+to `browser` or `http` to crawl the live site.
 
 Page classification is JSON-LD-driven: any page that publishes a `Product`
 schema block is treated as a product (leaf), everything else is a category.

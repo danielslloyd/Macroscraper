@@ -1,4 +1,8 @@
-"""Trader Joe's adapter (fixture-driven)."""
+"""Trader Joe's adapter.
+
+Configured as `"mode": "fixture"` in `scraper_config.json` and shipped without
+captured pages, so it no-ops until fixtures are added or the mode is changed.
+"""
 from __future__ import annotations
 
 import re

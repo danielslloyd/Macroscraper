@@ -22,6 +22,7 @@ food-scraper/
   README.md
   run.bat                    ← single-command launcher (Windows)
   cleaner_config.json        ← Ollama model list (user-editable, not hardcoded)
+  scraper_config.json        ← fetch modes, delays, extraction tiers, models
   /orchestrator              ← FastAPI backend
     main.py                  ← bootstrap + uvicorn startup
     queue.py                 ← job queue + recovery
@@ -32,9 +33,22 @@ food-scraper/
       products.py
   /scraper                   ← Scraper module
     base_adapter.py
+    config.py                ← reads scraper_config.json
     crawler.py
     downloader.py            ← image + HTML download logic
+    embedded.py              ← __NEXT_DATA__ / flight-payload extraction
+    parsing.py               ← shared JSON-LD + HTML helpers
     rate_limiter.py
+    unblock.py               ← CLI: clear a retailer's bot check by hand
+    /fetch
+      browser.py             ← persistent-profile Playwright + bot-wall detection
+      http.py                ← httpx client for APIs and image downloads
+    /extract                 ← nutrition extraction, tier by tier
+      nutrients.py           ← vocabulary, panel parser, validation, scoring
+      barcode_db.py          ← Open Food Facts + USDA FoodData Central
+      ocr.py                 ← local OCR engine wrapper
+      label_finder.py        ← picks which photo is the panel, without a model
+      ladder.py              ← tier escalation + provenance
     /adapters
       whole_foods.py
       trader_joes.py
@@ -46,6 +60,8 @@ food-scraper/
   /cleaner                   ← Cleaner module
     runner.py                ← sequential Ollama model runner
     prompts.py               ← model prompt templates
+    vision.py                ← local vision model reads a panel photo (tier 4)
+    claude_vision.py         ← Claude API reads a panel photo (tier 5)
   /ui                        ← React/Vite frontend
     package.json
     vite.config.js
@@ -90,6 +106,22 @@ These are non-negotiable. Follow them exactly.
 - Polite delays: default 1–3s random jitter between requests. Make this configurable per adapter. Never hammer a site.
 - Do not re-scrape a product that already has `status: scraped` or higher — unless `force=true` is passed.
 - **Similar items**: Extract any "similar products", "related items", or "you might also like" links from the product page. Store them in `similar_items[]` with `name`, `public_url`, and `product_id: null` (to be populated later when the item is scraped). Do not scrape similar items automatically — let the user queue them separately.
+
+### Nutrition extraction
+- Nutrition is assembled by the tier ladder in `scraper/extract/ladder.py`, in the order given by `nutrition.tiers` in `scraper_config.json`: `page_html` → `barcode_db` → `name_db` → `ocr` → `local_vision` → `claude`. Never hardcode the tier list or the thresholds.
+- A tier runs only if the record so far scores below `nutrition.accept_confidence`. The great majority of products must resolve without a model; the two model tiers are last resorts and `claude` is off by default.
+- An earlier tier's value is never overwritten by a later one. A tier's contribution is rejected outright if it would lower the record's score.
+- Every tier that ran is recorded in `nutrition_sources[]` — what it found, whether it was used, and why not if it was not. Do not drop a tier's entry because it found nothing; "the barcode databases did not know this product" is information.
+- Records are validated, not trusted: macros must account for the stated calories within `CALORIE_ERROR_LIMIT`, components may not exceed their totals, and values outside sane per-serving bounds mark the record implausible.
+- Which photo holds the panel is decided by OCR plus a panel-likeness score, never by a model. The winner is copied to `data/labels/{product_id}_label.jpg`.
+
+### Seller attribution
+- Every adapter records `sold_by` and sets `first_party`: True when the retailer itself is the seller, False when a marketplace seller is named, None when the page does not say.
+- With `first_party_only` set for a retailer, a third-party listing is not stored as a product — it is flagged (`flag_reason: "third_party_seller"`). Never silently discard it.
+
+### Bot checks
+- A challenge page is detected before parsing (`scraper/fetch/browser.py`) and raises `BotWallError`. Never store a challenge page as a product record.
+- Do not attempt to defeat or automate past a bot check or CAPTCHA. The supported route is `python -m scraper.unblock <retailer>`, which opens a visible browser so the person clears it themselves; the resulting session persists in the browser profile.
 
 ### Cleaner behavior
 - Model list is read from `cleaner_config.json` at runtime — never hardcode model names.
@@ -159,12 +191,28 @@ These are non-negotiable. Follow them exactly.
     "unit": "per oz",
     "package_size": "8 oz"
   },
+  "gtin": "00842379152535",
+  "upc": "842379152535",
+  "retailer_sku": "B07KWH27FN",
+  "sold_by": "AmazonFresh",
+  "ships_from": "AmazonFresh",
+  "first_party": true,
+  "description": "...",
+  "ingredients": "...",
+  "categories": ["Grocery & Gourmet Food", "Nut & Seed Butters"],
+  "attributes": { "upc": "842379152535", "container type": "Jar" },
   "images": [
-    { "public_url": "https://...", "local_path": "data/images/wholefds_a3f9c12b_0.jpg" }
+    {
+      "public_url": "https://...",
+      "local_path": "data/images/wholefds_a3f9c12b_0.jpg",
+      "role": "front"
+    }
   ],
   "nutrition_label_image": {
     "public_url": "https://...",
-    "local_path": "data/labels/wholefds_a3f9c12b_label.jpg"
+    "local_path": "data/labels/wholefds_a3f9c12b_label.jpg",
+    "image_index": 1,
+    "panel_likeness": 1.0
   },
   "nutrition": {
     "serving_size": "1 cup (240g)",
@@ -177,6 +225,29 @@ These are non-negotiable. Follow them exactly.
     "protein_g": 5,
     "sodium_mg": 140
   },
+  "nutrition_confidence": 1.0,
+  "nutrition_score": {
+    "completeness": 1.0,
+    "calorie_error": 0.061,
+    "plausible": true,
+    "value": 1.0
+  },
+  "nutrition_sources": [
+    {
+      "source": "ocr",
+      "tier": 3,
+      "extracted_at": "2025-01-01T00:05:00Z",
+      "accepted": true,
+      "fields": { "calories": 200 },
+      "image": "data/images/wholefds_a3f9c12b_1.jpg",
+      "raw_text": "Nutrition Facts Serving size ...",
+      "field_score": {}
+    }
+  ],
+  "nutrition_conflicts": [
+    { "field": "calories", "kept": 200, "rejected": 250, "from": "barcode_db" }
+  ],
+  "image_ocr_text": { "1": "Nutrition Facts ..." },
   "raw_html_snapshot": "data/html/wholefds_a3f9c12b.html",
   "similar_items": [
     {
@@ -207,7 +278,16 @@ These are non-negotiable. Follow them exactly.
 | `scraped` | Raw data collected, not yet cleaned |
 | `cleaning` | Cleaner currently running |
 | `cleaned` | All configured models have run |
-| `flagged` | Manually flagged for review |
+| `flagged` | Needs review — see `flag_reason` |
+
+These five are the whole set; a new condition gets a `flag_reason` on `flagged`,
+not a new status. Current reasons: `bot_wall` (the retailer served a challenge
+page), `third_party_seller` (dropped by `first_party_only`), and no reason at
+all when a person flagged it by hand from the UI.
+
+Retailers whose records come from an API rather than a web page store
+`raw_api_snapshot` (`data/html/{product_id}.api.json`) in place of
+`raw_html_snapshot`.
 
 ---
 

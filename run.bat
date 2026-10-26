@@ -22,6 +22,12 @@ python -m pip install -q -r requirements.txt
 echo Installing Playwright browsers (chromium)...
 playwright install chromium
 
+REM The live scrapers drive the person's own Chrome through a persistent
+REM profile, which is what lets a bot check be cleared once by hand and reused.
+REM Chromium above is the fallback when Chrome is not installed.
+echo Installing Playwright Chrome channel (optional, ignore failures)...
+playwright install chrome 2>nul
+
 REM ----- UI deps -----------------------------------------------------------
 if not exist "ui\node_modules" (
     echo Installing UI dependencies...

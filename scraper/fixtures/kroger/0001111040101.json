@@ -1,0 +1,109 @@
+{
+  "_fixture_note": "SYNTHETIC. Modelled on the documented Kroger Product API response shape (developer.kroger.com, GET /v1/products/{productId}), not captured from a live call — this project has no Kroger API credentials. Field names, nesting, image perspectives and size labels follow the published schema. Replace with a real response once credentials are available.",
+  "data": {
+    "productId": "0001111040101",
+    "upc": "0001111040101",
+    "aisleLocations": [
+      {
+        "bayNumber": "12",
+        "description": "Dairy",
+        "number": "118",
+        "numberOfFacings": "4",
+        "shelfNumber": "3",
+        "shelfPositionInBay": "2",
+        "side": "L"
+      }
+    ],
+    "brand": "Kroger",
+    "categories": ["Dairy", "Natural & Organic"],
+    "countryOrigin": "United States",
+    "description": "Kroger® Vitamin D Whole Milk",
+    "images": [
+      {
+        "id": "61bbefa0-front",
+        "perspective": "front",
+        "featured": true,
+        "sizes": [
+          {
+            "id": "61bbefa0-front-xl",
+            "size": "xlarge",
+            "url": "https://www.kroger.com/product/images/xlarge/front/0001111040101"
+          },
+          {
+            "id": "61bbefa0-front-l",
+            "size": "large",
+            "url": "https://www.kroger.com/product/images/large/front/0001111040101"
+          },
+          {
+            "id": "61bbefa0-front-t",
+            "size": "thumbnail",
+            "url": "https://www.kroger.com/product/images/thumbnail/front/0001111040101"
+          }
+        ]
+      },
+      {
+        "id": "61bbefa0-back",
+        "perspective": "back",
+        "featured": false,
+        "sizes": [
+          {
+            "id": "61bbefa0-back-xl",
+            "size": "xlarge",
+            "url": "https://www.kroger.com/product/images/xlarge/back/0001111040101"
+          },
+          {
+            "id": "61bbefa0-back-m",
+            "size": "medium",
+            "url": "https://www.kroger.com/product/images/medium/back/0001111040101"
+          }
+        ]
+      },
+      {
+        "id": "61bbefa0-right",
+        "perspective": "right",
+        "featured": false,
+        "sizes": [
+          {
+            "id": "61bbefa0-right-l",
+            "size": "large",
+            "url": "https://www.kroger.com/product/images/large/right/0001111040101"
+          }
+        ]
+      }
+    ],
+    "items": [
+      {
+        "itemId": "0001111040101",
+        "favorite": false,
+        "fulfillment": {
+          "curbside": true,
+          "delivery": true,
+          "inStore": true,
+          "shipToHome": false
+        },
+        "price": {
+          "regular": 3.49,
+          "promo": 3.19
+        },
+        "size": "1 gal",
+        "soldBy": "UNIT"
+      }
+    ],
+    "itemInformation": {
+      "depth": "5.50",
+      "height": "9.25",
+      "width": "5.50"
+    },
+    "temperature": {
+      "indicator": "Refrigerated",
+      "heatSensitive": false
+    }
+  },
+  "meta": {
+    "pagination": {
+      "start": 0,
+      "limit": 1,
+      "total": 1
+    }
+  }
+}
